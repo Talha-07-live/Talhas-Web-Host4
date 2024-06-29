@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>HLS Demo</title>
+  <link rel="stylesheet" href="https://cdn.plyr.io/1.8.2/plyr.css">
+  <style>
+    body {
+      max-width: 1024px;
+    }
+  </style>
+</head>
+<body>
+  <video preload="none" id="player" autoplay controls crossorigin poster="https://s10.gifyu.com/images/SYGkR.jpg"></video>
+  <script src="https://cdn.plyr.io/1.8.2/plyr.js"></script>
+  <script src="https://cdn.jsdelivr.net/hls.js/latest/hls.js"></script>
+  <script>
+    (function () {
+      var video = document.querySelector('#player');
+
+      if (Hls.isSupported()) {
+        var hls = new Hls();
+        hls.loadSource('https://ovo.eelov.com/live/n-1/chunks.m3u8');
+        hls.attachMedia(video);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+          var availableLevels = hls.levels;
+          var level720pIndex = availableLevels.findIndex(level => level.height === 720);
+          var highestLevel = availableLevels.length - 1;
+
+          if (availableLevels[highestLevel].height > 720 && level720pIndex !== -1) {
+            hls.currentLevel = level720pIndex;
+          }
+
+          video.play();
+        });
+      }
+
+      plyr.setup(video);
+    })();
+  </script>
+</body>
+</html>
