@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="https://cdn.plyr.io/1.8.2/plyr.css">
   <style>
     body {
-      max-width: 1024px;
+      max-width: 1030px;
     }
   </style>
 </head>
@@ -25,12 +25,18 @@
 
         hls.on(Hls.Events.MANIFEST_PARSED, function() {
           var availableLevels = hls.levels;
-          var level720pIndex = availableLevels.findIndex(level => level.height === 720);
-          var highestLevel = availableLevels.length - 1;
+          var targetResolution = 720;
+          var targetIndex = availableLevels.findIndex(level => level.height === targetResolution);
 
-          if (availableLevels[highestLevel].height > 720 && level720pIndex !== -1) {
-            hls.currentLevel = level720pIndex;
+          // If 720p is not found, use the highest resolution below 720p
+          if (targetIndex === -1) {
+            targetIndex = availableLevels.reduce((prev, curr, index) => {
+              return (curr.height < targetResolution && curr.height > availableLevels[prev].height) ? index : prev;
+            }, 0);
           }
+
+          hls.loadLevel = targetIndex;
+          hls.currentLevel = targetIndex;
 
           video.play();
         });
